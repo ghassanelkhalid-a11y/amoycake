@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Amoy Artisan Bakery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream:   { DEFAULT: '#FFF8F0', dark: '#F5EBD8' },
+            brown:   { light: '#C8956C', DEFAULT: '#A0522D', dark: '#6B3A1F' },
+            amber:   { soft: '#F4A261', DEFAULT: '#E76F51' },
+            warm:    { gray: '#7A6C5D', light: '#EDE0D0' },
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'Georgia', 'serif'],
+            sans:  ['DM Sans', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: #FFF8F0; color: #3d2b1f; }
+    .checkout-step { transition: all 0.3s ease; }
+    .step-active { background: #A0522D; color: white; border-color: #A0522D; }
+    .step-completed { background: #4CAF50; color: white; border-color: #4CAF50; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #FFF8F0; }
+    ::-webkit-scrollbar-thumb { background: #C8956C; border-radius: 3px; }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- NAVBAR -->
+<nav class="bg-cream shadow-sm px-6 py-4 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 group">
+      <div class="w-9 h-9 rounded-full bg-brown overflow-hidden shadow">
+        <img src="https://i.pinimg.com/736x/b6/1b/1a/b61b1a25f4041803accb47cb18f36011.jpg" alt="Logo" class="w-full h-full object-cover" />
+      </div>
+      <span class="font-serif font-bold text-xl text-brown-dark tracking-wide">Amoy</span>
+    </a>
+    <div class="text-sm text-warm-gray">
+      <span class="hidden md:inline">🍞 Artisan Bakery</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="max-w-7xl mx-auto px-4 py-8 md:px-6">
+  <!-- Steps Indicator -->
+  <div class="mb-8">
+    <div class="flex items-center justify-center gap-2 md:gap-4">
+      <div class="flex items-center">
+        <div id="step1-indicator" class="checkout-step w-10 h-10 rounded-full bg-brown text-white flex items-center justify-center font-bold border-2 border-brown">1</div>
+        <span class="ml-2 text-sm font-medium text-brown-dark hidden sm:inline">Keranjang</span>
+      </div>
+      <div class="w-12 md:w-20 h-0.5 bg-warm-light"></div>
+      <div class="flex items-center">
+        <div id="step2-indicator" class="checkout-step w-10 h-10 rounded-full bg-white text-warm-gray flex items-center justify-center font-bold border-2 border-warm-light">2</div>
+        <span class="ml-2 text-sm font-medium text-warm-gray hidden sm:inline">Detail</span>
+      </div>
+      <div class="w-12 md:w-20 h-0.5 bg-warm-light"></div>
+      <div class="flex items-center">
+        <div id="step3-indicator" class="checkout-step w-10 h-10 rounded-full bg-white text-warm-gray flex items-center justify-center font-bold border-2 border-warm-light">3</div>
+        <span class="ml-2 text-sm font-medium text-warm-gray hidden sm:inline">Pembayaran</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: Review Cart -->
+  <div id="step1" class="checkout-step-content">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-warm-light p-6">
+          <h2 class="font-serif font-bold text-2xl text-brown-dark mb-4">🛒 Ringkasan Pesanan</h2>
+          <div id="checkout-cart-items" class="space-y-3 max-h-96 overflow-y-auto"></div>
+          <div class="mt-4 pt-4 border-t border-warm-light">
+            <div class="flex justify-between text-sm">
+              <span class="text-warm-gray">Catatan:</span>
+              <input type="text" id="order-notes" placeholder="Tambahkan catatan untuk pesanan..." class="flex-1 ml-4 px-3 py-1 border border-warm-light rounded-lg text-sm focus:outline-none focus:border-brown" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-1">
+        <div class="bg-gradient-to-br from-brown-dark to-brown rounded-2xl shadow-lg p-6 text-white sticky top-24">
+          <h3 class="font-serif font-bold text-xl mb-4">Ringkasan Belanja</h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span>Total Item</span>
+              <span id="checkout-total-items" class="font-semibold">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Subtotal</span>
+              <span id="checkout-subtotal" class="font-semibold">Rp 0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Ongkos Kirim</span>
+              <span class="text-green-300">Gratis</span>
+            </div>
+            <div class="border-t border-white/20 pt-3 mt-2">
+              <div class="flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span id="checkout-total" class="font-serif">Rp 0</span>
+              </div>
+            </div>
+          </div>
+          <button onclick="goToStep2()" class="w-full mt-6 bg-amber-soft text-brown-dark py-3 rounded-xl font-semibold hover:bg-amber-600 transition-colors shadow-md">
+            Lanjut ke Detail →
+          </button>
+          <button onclick="window.location.href='index.html'" class="w-full mt-3 bg-white/10 text-white py-2 rounded-xl font-medium hover:bg-white/20 transition-colors">
+            ← Kembali ke Toko
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Customer Details -->
+  <div id="step2" class="checkout-step-content hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-warm-light p-6">
+          <h2 class="font-serif font-bold text-2xl text-brown-dark mb-4">📋 Informasi Pemesan</h2>
+          <form id="customer-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-warm-gray mb-1">Nama Lengkap *</label>
+                <input type="text" id="customer-name" required class="w-full px-4 py-2 border border-warm-light rounded-xl focus:outline-none focus:border-brown transition-colors" placeholder="John Doe" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-warm-gray mb-1">Nomor Telepon *</label>
+                <input type="tel" id="customer-phone" required class="w-full px-4 py-2 border border-warm-light rounded-xl focus:outline-none focus:border-brown transition-colors" placeholder="081234567890" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-warm-gray mb-1">Email</label>
+              <input type="email" id="customer-email" class="w-full px-4 py-2 border border-warm-light rounded-xl focus:outline-none focus:border-brown transition-colors" placeholder="john@example.com" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-warm-gray mb-1">Alamat Lengkap *</label>
+              <textarea id="customer-address" rows="3" required class="w-full px-4 py-2 border border-warm-light rounded-xl focus:outline-none focus:border-brown transition-colors" placeholder="Jl. Contoh No. 123, Jakarta Selatan"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-warm-gray mb-1">Metode Pengiriman</label>
+                <select id="delivery-method" class="w-full px-4 py-2 border border-warm-light rounded-xl focus:outline-none focus:border-brown">
+                  <option value="same-day">Same Day Delivery (Gratis)</option>
+                  <option value="scheduled">Jadwal Pengiriman</option>
+                  <option value="pickup">Ambil di Toko</option>
+                </select>
+              </div>
+              <div id="delivery-date-container">
+                <label class="block text-sm font-medium text-warm-gray mb-1">Tanggal Pengiriman</label>
+                <input type="date" id="delivery-date" class="w-full px-4 py-2 border border-warm-light rounded-xl focus:outline-none focus:border-brown" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="lg:col-span-1">
+        <div class="bg-gradient-to-br from-brown-dark to-brown rounded-2xl shadow-lg p-6 text-white sticky top-24">
+          <h3 class="font-serif font-bold text-xl mb-4">Ringkasan Pesanan</h3>
+          <div class="space-y-2 text-sm max-h-64 overflow-y-auto mb-4" id="checkout-summary-items"></div>
+          <div class="border-t border-white/20 pt-3">
+            <div class="flex justify-between text-lg font-bold">
+              <span>Total</span>
+              <span id="checkout-step2-total" class="font-serif">Rp 0</span>
+            </div>
+          </div>
+          <button onclick="goToStep3()" class="w-full mt-6 bg-amber-soft text-brown-dark py-3 rounded-xl font-semibold hover:bg-amber-600 transition-colors shadow-md">
+            Lanjut ke Pembayaran →
+          </button>
+          <button onclick="goToStep1()" class="w-full mt-3 bg-white/10 text-white py-2 rounded-xl font-medium hover:bg-white/20 transition-colors">
+            ← Kembali
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Payment -->
+  <div id="step3" class="checkout-step-content hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-warm-light p-6">
+          <h2 class="font-serif font-bold text-2xl text-brown-dark mb-4">💳 Metode Pembayaran</h2>
+          
+          <div class="space-y-3 mb-6">
+            <label class="flex items-center p-4 border border-warm-light rounded-xl cursor-pointer hover:bg-cream transition-colors">
+              <input type="radio" name="payment-method" value="bank-transfer" checked class="w-4 h-4 text-brown" />
+              <div class="ml-3 flex-1">
+                <div class="font-semibold text-brown-dark">Transfer Bank (BCA/Mandiri/BNI)</div>
+                <div class="text-xs text-warm-gray">Bayar melalui transfer bank, konfirmasi setelah pembayaran</div>
+              </div>
+              <img src="https://cdn-icons-png.flaticon.com/512/1791/1791984.png" class="w-8 h-8 opacity-60" alt="bank" />
+            </label>
+            
+            <label class="flex items-center p-4 border border-warm-light rounded-xl cursor-pointer hover:bg-cream transition-colors">
+              <input type="radio" name="payment-method" value="qris" class="w-4 h-4 text-brown" />
+              <div class="ml-3 flex-1">
+                <div class="font-semibold text-brown-dark">QRIS (Quick Response Code)</div>
+                <div class="text-xs text-warm-gray">Scan QRIS menggunakan aplikasi mobile banking</div>
+              </div>
+              <img src="https://cdn-icons-png.flaticon.com/512/10613/10613676.png" class="w-8 h-8 opacity-60" alt="qris" />
+            </label>
+            
+            <label class="flex items-center p-4 border border-warm-light rounded-xl cursor-pointer hover:bg-cream transition-colors">
+              <input type="radio" name="payment-method" value="cod" class="w-4 h-4 text-brown" />
+              <div class="ml-3 flex-1">
+                <div class="font-semibold text-brown-dark">COD (Bayar di Tempat)</div>
+                <div class="text-xs text-warm-gray">Bayar saat pesanan sampai (tersedia untuk area tertentu)</div>
+              </div>
+              <img src="https://cdn-icons-png.flaticon.com/512/3159/3159373.png" class="w-8 h-8 opacity-60" alt="cod" />
+            </label>
+          </div>
+
+          <div id="bank-transfer-info" class="bg-amber-soft/10 rounded-xl p-4 border border-amber-soft/30">
+            <h4 class="font-semibold text-brown-dark mb-2">Informasi Transfer Bank</h4>
+            <div class="space-y-1 text-sm">
+              <p><span class="font-medium">BCA:</span> 123 456 7890 a.n. Amoy Bakery</p>
+              <p><span class="font-medium">Mandiri:</span> 987 654 3210 a.n. Amoy Bakery</p>
+              <p><span class="font-medium">BNI:</span> 555 888 1112 a.n. Amoy Bakery</p>
+            </div>
+            <p class="text-xs text-warm-gray mt-2">* Setelah transfer, silakan upload bukti pembayaran</p>
+          </div>
+
+          <div id="qris-info" class="hidden bg-amber-soft/10 rounded-xl p-4 text-center">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AMOYBAKERY2024" alt="QR Code" class="mx-auto mb-2 w-32 h-32" />
+            <p class="text-sm font-medium text-brown-dark">Scan QRIS di atas untuk melakukan pembayaran</p>
+            <p class="text-xs text-warm-gray mt-1">ID Merchant: 881234567890</p>
+          </div>
+
+          <div class="mt-6">
+            <label class="block text-sm font-medium text-warm-gray mb-2">Upload Bukti Pembayaran (Opsional)</label>
+            <input type="file" id="payment-proof" accept="image/*" class="w-full text-sm text-warm-gray file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brown file:text-white hover:file:bg-brown-dark" />
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-1">
+        <div class="bg-gradient-to-br from-brown-dark to-brown rounded-2xl shadow-lg p-6 text-white sticky top-24">
+          <h3 class="font-serif font-bold text-xl mb-4">Detail Pesanan</h3>
+          <div class="space-y-2 text-sm" id="final-order-summary"></div>
+          <div class="border-t border-white/20 pt-3 mt-3">
+            <div class="flex justify-between text-lg font-bold">
+              <span>Total</span>
+              <span id="final-total" class="font-serif">Rp 0</span>
+            </div>
+          </div>
+          <button onclick="processOrder()" class="w-full mt-6 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors shadow-md">
+            ✅ Konfirmasi Pesanan
+          </button>
+          <button onclick="goToStep2()" class="w-full mt-3 bg-white/10 text-white py-2 rounded-xl font-medium hover:bg-white/20 transition-colors">
+            ← Kembali
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="success-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center">
+    <div class="text-6xl mb-4">🎉</div>
+    <h3 class="font-serif font-bold text-2xl text-brown-dark mb-2">Pesanan Berhasil!</h3>
+    <p class="text-warm-gray mb-4">Terima kasih telah berbelanja di Amoy Artisan Bakery</p>
+    <div class="bg-warm-light rounded-lg p-3 mb-4 text-left">
+      <p class="text-sm font-semibold text-brown-dark">Nomor Pesanan:</p>
+      <p id="order-number" class="text-lg font-mono font-bold text-brown">AMY-2024-XXXX</p>
+    </div>
+    <button onclick="window.location.href='index.html'" class="bg-brown text-cream px-6 py-2 rounded-full font-semibold hover:bg-brown-dark transition-colors">
+      Kembali ke Beranda
+    </button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-brown-dark text-cream px-6 py-3 rounded-full shadow-xl text-sm font-medium opacity-0 transition-opacity duration-300 pointer-events-none">
+  ✅ Pesanan berhasil dibuat!
+</div>
+
+<script>
+// Load cart from localStorage
+let cart = JSON.parse(localStorage.getItem('amoy_cart') || '[]');
+let currentStep = 1;
+
+// Format currency
+function formatRp(n) { return 'Rp ' + n.toLocaleString('id-ID'); }
+
+// Update checkout displays
+function updateCheckoutDisplay() {
+  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  
+  document.getElementById('checkout-total-items').textContent = totalItems;
+  document.getElementById('checkout-subtotal').textContent = formatRp(subtotal);
+  document.getElementById('checkout-total').textContent = formatRp(subtotal);
+  document.getElementById('checkout-step2-total').textContent = formatRp(subtotal);
+  document.getElementById('final-total').textContent = formatRp(subtotal);
+  
+  // Render cart items for step 1
+  const cartContainer = document.getElementById('checkout-cart-items');
+  if (cartContainer) {
+    if (cart.length === 0) {
+      cartContainer.innerHTML = '<div class="text-center text-warm-gray py-8">Keranjang kosong. <a href="index.html" class="text-brown underline">Kembali berbelanja</a></div>';
+    } else {
+      cartContainer.innerHTML = cart.map(item => `
+        <div class="flex items-center gap-3 bg-cream rounded-xl p-3">
+          <img src="${item.img}" class="w-16 h-16 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/64'" />
+          <div class="flex-1">
+            <div class="font-semibold text-brown-dark">${item.name}</div>
+            <div class="text-sm text-warm-gray">${formatRp(item.price)} x ${item.qty}</div>
+          </div>
+          <div class="font-bold text-brown-dark">${formatRp(item.price * item.qty)}</div>
+        </div>
+      `).join('');
+    }
+  }
+  
+  // Render summary for step 2
+  const summaryContainer = document.getElementById('checkout-summary-items');
+  if (summaryContainer) {
+    summaryContainer.innerHTML = cart.map(item => `
+      <div class="flex justify-between text-sm">
+        <span>${item.name} x${item.qty}</span>
+        <span>${formatRp(item.price * item.qty)}</span>
+      </div>
+    `).join('');
+  }
+  
+  // Render final summary
+  const finalContainer = document.getElementById('final-order-summary');
+  if (finalContainer) {
+    finalContainer.innerHTML = cart.map(item => `
+      <div class="flex justify-between text-sm">
+        <span>${item.name} x${item.qty}</span>
+        <span>${formatRp(item.price * item.qty)}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// Step navigation
+function goToStep1() {
+  currentStep = 1;
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  updateStepIndicators();
+}
+
+function goToStep2() {
+  if (cart.length === 0) {
+    showToast('Keranjang masih kosong!', 'error');
+    return;
+  }
+  currentStep = 2;
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  updateStepIndicators();
+}
+
+function goToStep3() {
+  // Validate customer form
+  const name = document.getElementById('customer-name')?.value;
+  const phone = document.getElementById('customer-phone')?.value;
+  const address = document.getElementById('customer-address')?.value;
+  
+  if (!name || !phone || !address) {
+    showToast('Mohon lengkapi data pemesan!', 'error');
+    return;
+  }
+  
+  currentStep = 3;
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.remove('hidden');
+  updateStepIndicators();
+}
+
+function updateStepIndicators() {
+  for (let i = 1; i <= 3; i++) {
+    const indicator = document.getElementById(`step${i}-indicator`);
+    if (i < currentStep) {
+      indicator.className = 'checkout-step w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold border-2 border-green-500';
+      indicator.textContent = '✓';
+    } else if (i === currentStep) {
+      indicator.className = 'checkout-step w-10 h-10 rounded-full bg-brown text-white flex items-center justify-center font-bold border-2 border-brown';
+      indicator.textContent = i;
+    } else {
+      indicator.className = 'checkout-step w-10 h-10 rounded-full bg-white text-warm-gray flex items-center justify-center font-bold border-2 border-warm-light';
+      indicator.textContent = i;
+    }
+  }
+}
+
+// Payment method change
+document.addEventListener('DOMContentLoaded', () => {
+  updateCheckoutDisplay();
+  
+  // Payment method toggle
+  const paymentRadios = document.querySelectorAll('input[name="payment-method"]');
+  paymentRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const bankInfo = document.getElementById('bank-transfer-info');
+      const qrisInfo = document.getElementById('qris-info');
+      
+      if (e.target.value === 'bank-transfer') {
+        bankInfo.classList.remove('hidden');
+        qrisInfo.classList.add('hidden');
+      } else if (e.target.value === 'qris') {
+        bankInfo.classList.add('hidden');
+        qrisInfo.classList.remove('hidden');
+      } else {
+        bankInfo.classList.add('hidden');
+        qrisInfo.classList.add('hidden');
+      }
+    });
+  });
+  
+  // Set default delivery date to tomorrow
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const dateInput = document.getElementById('delivery-date');
+  if (dateInput) {
+    dateInput.value = tomorrow.toISOString().split('T')[0];
+  }
+});
+
+function processOrder() {
+  if (cart.length === 0) {
+    showToast('Keranjang kosong!', 'error');
+    return;
+  }
+  
+  // Get order data
+  const orderData = {
+    orderNumber: 'AMY-' + new Date().getFullYear() + '-' + Math.floor(Math.random() * 10000),
+    date: new Date().toLocaleString('id-ID'),
+    customer: {
+      name: document.getElementById('customer-name')?.value,
+      phone: document.getElementById('customer-phone')?.value,
+      email: document.getElementById('customer-email')?.value,
+      address: document.getElementById('customer-address')?.value
+    },
+    delivery: {
+      method: document.getElementById('delivery-method')?.value,
+      date: document.getElementById('delivery-date')?.value
+    },
+    payment: {
+      method: document.querySelector('input[name="payment-method"]:checked')?.value
+    },
+    notes: document.getElementById('order-notes')?.value,
+    items: cart,
+    subtotal: cart.reduce((sum, item) => sum + (item.price * item.qty), 0)
+  };
+  
+  // Save to localStorage
+  const orders = JSON.parse(localStorage.getItem('amoy_orders') || '[]');
+  orders.push(orderData);
+  localStorage.setItem('amoy_orders', JSON.stringify(orders));
+  
+  // Clear cart
+  localStorage.removeItem('amoy_cart');
+  cart = [];
+  
+  // Show success modal
+  document.getElementById('order-number').textContent = orderData.orderNumber;
+  document.getElementById('success-modal').classList.remove('hidden');
+  document.getElementById('success-modal').classList.add('flex');
+  
+  showToast('Pesanan berhasil dibuat!');
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+}
+
+// Close success modal
+function closeSuccessModal() {
+  document.getElementById('success-modal').classList.add('hidden');
+  document.getElementById('success-modal').classList.remove('flex');
+  window.location.href = 'index.html';
+}
+
+// Check if cart is empty on load
+window.addEventListener('load', () => {
+  if (cart.length === 0) {
+    // Show empty cart message
+    const cartContainer = document.getElementById('checkout-cart-items');
+    if (cartContainer) {
+      cartContainer.innerHTML = '<div class="text-center text-warm-gray py-8">Keranjang masih kosong. <a href="index.html" class="text-brown underline font-semibold">Kembali berbelanja</a></div>';
+    }
+  }
+});
+</script>
+</body>
+</html>

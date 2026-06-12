@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amoy — Artisan Bakery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream:   { DEFAULT: '#FFF8F0', dark: '#F5EBD8' },
+            brown:   { light: '#C8956C', DEFAULT: '#A0522D', dark: '#6B3A1F' },
+            amber:   { soft: '#F4A261', DEFAULT: '#E76F51' },
+            warm:    { gray: '#7A6C5D', light: '#EDE0D0' },
+            youtube: { DEFAULT: '#FF0000', dark: '#CC0000' },
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'Georgia', 'serif'],
+            sans:  ['DM Sans', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: #FFF8F0; color: #3d2b1f; }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 9999;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    .hero-bg {
+      background: radial-gradient(ellipse at 70% 50%, #f4d4b0 0%, #FFF8F0 60%),
+                  linear-gradient(135deg, #fde8cc 0%, #fff3e6 100%);
+    }
+
+    .product-card { 
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    }
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 40px rgba(107,58,31,0.12);
+    }
+
+    .card-img-wrap { overflow: hidden; }
+    .card-img-wrap img { transition: transform 0.6s ease; }
+    .product-card:hover .card-img-wrap img { transform: scale(1.08); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.6s ease forwards; }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+    .delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+    #navbar { transition: all 0.3s ease; backdrop-filter: blur(0px); }
+
+    .badge-new { background: linear-gradient(135deg, #E76F51, #F4A261); }
+    .modal-overlay { backdrop-filter: blur(4px); }
+
+    .cat-pill.active { background: #A0522D; color: #fff; box-shadow: 0 4px 12px rgba(160,82,45,0.3); }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #FFF8F0; }
+    ::-webkit-scrollbar-thumb { background: #C8956C; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #A0522D; }
+
+    .star-rating {
+      display: inline-flex;
+      gap: 2px;
+    }
+    .star-rating i {
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .star-rating i:hover {
+      transform: scale(1.15);
+    }
+    .rating-static i {
+      font-size: 11px;
+    }
+    
+    .owner-img {
+      transition: all 0.5s ease;
+    }
+    .owner-img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 20px 40px rgba(107,58,31,0.2);
+    }
+    
+    .social-icon {
+      transition: all 0.3s ease;
+    }
+    .social-icon:hover {
+      transform: translateY(-3px);
+    }
+    
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 8s linear infinite;
+    }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between">
+  <a href="#" class="flex items-center gap-2 group">
+    <div class="w-10 h-10 rounded-full bg-brown overflow-hidden shadow-lg group-hover:scale-110 transition-transform duration-300">
+      <img src="https://i.pinimg.com/736x/b6/1b/1a/b61b1a25f4041803accb47cb18f36011.jpg" alt="Logo" class="w-full h-full object-cover" />
+    </div>
+    <span class="font-serif font-bold text-2xl text-brown-dark tracking-wide group-hover:text-brown transition-colors">Amoy</span>
+  </a>
+
+  <div class="hidden md:flex items-center gap-10 text-sm font-medium text-warm-gray">
+    <a href="#hero"    class="hover:text-brown transition-all duration-300 hover:-translate-y-0.5">Beranda</a>
+    <a href="#katalog" class="hover:text-brown transition-all duration-300 hover:-translate-y-0.5">Katalog</a>
+    <a href="#tentang" class="hover:text-brown transition-all duration-300 hover:-translate-y-0.5">Tentang</a>
+    <a href="#owner"   class="hover:text-brown transition-all duration-300 hover:-translate-y-0.5">Owner</a>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <button onclick="toggleCart()" class="relative flex items-center gap-2 bg-brown text-cream px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brown-dark transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5">
+      <i class="fas fa-shopping-bag text-sm"></i>
+      <span>Keranjang</span>
+      <span id="cart-count" class="ml-1 bg-amber-soft text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section id="hero" class="hero-bg min-h-screen flex items-center pt-20 pb-16 px-6 md:px-16 relative overflow-hidden">
+  <div class="absolute top-20 right-10 w-80 h-80 rounded-full bg-amber-soft/10 blur-3xl animate-pulse-slow pointer-events-none"></div>
+  <div class="absolute bottom-10 left-5 w-60 h-60 rounded-full bg-brown-light/15 blur-2xl animate-float pointer-events-none"></div>
+  <div class="absolute top-1/2 left-1/4 w-40 h-40 rounded-full bg-amber-soft/5 blur-2xl pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <div class="space-y-6">
+      <span class="fade-up delay-1 inline-block bg-warm-light text-brown text-xs font-semibold uppercase tracking-widest px-5 py-2.5 rounded-full shadow-sm">
+        <i class="fas fa-star text-amber-soft mr-1"></i> Artisan Bakery Since 2020
+      </span>
+      <h1 class="fade-up delay-2 font-serif font-bold text-5xl md:text-6xl lg:text-7xl leading-tight text-brown-dark">
+        Roti Hangat,<br/>
+        <em class="text-brown font-normal relative inline-block">
+          Setiap Hari.
+          <svg class="absolute -bottom-2 left-0 w-full" height="8" viewBox="0 0 200 8" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 4 Q 50 8 100 4 Q 150 0 200 4" stroke="#E76F51" stroke-width="2" fill="none" opacity="0.5"/>
+          </svg>
+        </em>
+      </h1>
+      <p class="fade-up delay-3 text-warm-gray text-lg leading-relaxed max-w-md">
+        Dipanggang segar setiap pagi dengan bahan-bahan pilihan. Dari croissant klasik hingga sourdough artisan — temukan roti favoritmu di sini.
+      </p>
+      <div class="fade-up delay-4 flex flex-wrap gap-4">
+        <a href="#katalog" class="bg-brown text-cream px-8 py-3.5 rounded-full font-semibold hover:bg-brown-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 inline-flex items-center gap-2 group">
+          <span>Lihat Produk</span>
+          <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+        </a>
+        <a href="#tentang" class="border-2 border-brown/30 text-brown px-8 py-3.5 rounded-full font-semibold hover:border-brown hover:bg-cream-dark transition-all inline-flex items-center gap-2">
+          <i class="fas fa-heart"></i>
+          <span>Tentang Kami</span>
+        </a>
+      </div>
+      <div class="fade-up delay-4 flex gap-8 pt-4">
+        <div class="group cursor-pointer">
+          <div class="font-serif font-bold text-2xl text-brown-dark group-hover:text-brown transition-colors">50+</div>
+          <div class="text-warm-gray text-sm">Varian Roti</div>
+        </div>
+        <div class="w-px bg-warm-light"></div>
+        <div class="group cursor-pointer">
+          <div class="font-serif font-bold text-2xl text-brown-dark group-hover:text-brown transition-colors">1.2k+</div>
+          <div class="text-warm-gray text-sm">Pelanggan Puas</div>
+        </div>
+        <div class="w-px bg-warm-light"></div>
+        <div class="group cursor-pointer">
+          <div class="font-serif font-bold text-2xl text-brown-dark group-hover:text-brown transition-colors">4.9</div>
+          <div class="text-warm-gray text-sm flex items-center gap-1"><i class="fas fa-star text-amber-soft text-xs"></i> Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative flex justify-center lg:justify-end">
+      <div class="relative w-80 h-80 md:w-96 md:h-96 animate-float">
+        <div class="absolute inset-0 rounded-full shadow-2xl overflow-hidden ring-4 ring-white/50">
+          <img
+            src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80&fit=crop"
+            alt="Croissant Amoy Bakery"
+            class="w-full h-full object-cover"
+          />
+        </div>
+        <div class="absolute -top-4 -left-4 bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-xl">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-star text-yellow-400 text-xl"></i>
+            <div>
+              <div class="font-bold text-brown-dark text-sm">4.9/5</div>
+              <div class="text-warm-gray text-xs">Rating Pelanggan</div>
+            </div>
+          </div>
+        </div>
+        <div class="absolute -bottom-4 -right-4 bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-xl">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-truck-fast text-brown text-xl"></i>
+            <div>
+              <div class="font-bold text-brown-dark text-sm">Gratis Ongkir</div>
+              <div class="text-warm-gray text-xs">Min. 3 item</div>
+            </div>
+          </div>
+        </div>
+        <div class="absolute top-1/2 -right-8 bg-gradient-to-r from-amber-soft to-amber-600 text-white rounded-2xl p-3 shadow-xl animate-pulse">
+          <div class="text-center">
+            <div class="font-bold text-lg">Fresh</div>
+            <div class="text-xs opacity-90">Tiap Pagi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KATEGORI SECTION -->
+<section class="py-16 px-6 md:px-16 bg-cream-dark relative">
+  <div class="max-w-7xl mx-auto relative">
+    <div class="text-center mb-10">
+      <span class="text-brown text-sm font-semibold uppercase tracking-wider"><i class="fas fa-tags mr-2"></i>Kategori</span>
+      <h2 class="font-serif font-bold text-3xl text-brown-dark mt-2">Pilihan Kategori</h2>
+      <p class="text-warm-gray mt-2 text-sm">Temukan roti favoritmu di setiap kategori</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div onclick="filterCategory('Roti Manis')" class="cat-card cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-2 group border border-warm-light">
+        <div class="h-32 overflow-hidden relative">
+          <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80&fit=crop" alt="Roti Manis" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        </div>
+        <div class="p-4 text-center">
+          <i class="fas fa-cake-candles text-brown text-2xl mb-2 block"></i>
+          <div class="font-semibold text-brown-dark">Roti Manis</div>
+          <div class="text-warm-gray text-xs mt-1">12 produk</div>
+        </div>
+      </div>
+      <div onclick="filterCategory('Roti Tawar')" class="cat-card cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-2 group border border-warm-light">
+        <div class="h-32 overflow-hidden relative">
+          <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&q=80&fit=crop" alt="Roti Tawar" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        </div>
+        <div class="p-4 text-center">
+          <i class="fas fa-bread-slice text-brown text-2xl mb-2 block"></i>
+          <div class="font-semibold text-brown-dark">Roti Tawar</div>
+          <div class="text-warm-gray text-xs mt-1">8 produk</div>
+        </div>
+      </div>
+      <div onclick="filterCategory('Kue')" class="cat-card cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-2 group border border-warm-light">
+        <div class="h-32 overflow-hidden relative">
+          <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=300&q=80&fit=crop" alt="Kue" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        </div>
+        <div class="p-4 text-center">
+          <i class="fas fa-birthday-cake text-brown text-2xl mb-2 block"></i>
+          <div class="font-semibold text-brown-dark">Kue</div>
+          <div class="text-warm-gray text-xs mt-1">15 produk</div>
+        </div>
+      </div>
+      <div onclick="filterCategory('Spesial')" class="cat-card cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-2 group border border-warm-light">
+        <div class="h-32 overflow-hidden relative">
+          <img src="https://images.unsplash.com/photo-1574085733277-851d9d856a3a?w=300&q=80&fit=crop" alt="Spesial" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        </div>
+        <div class="p-4 text-center">
+          <i class="fas fa-star text-brown text-2xl mb-2 block"></i>
+          <div class="font-semibold text-brown-dark">Spesial</div>
+          <div class="text-warm-gray text-xs mt-1">6 produk</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KATALOG / PRODUK SECTION -->
+<section id="katalog" class="py-16 px-6 md:px-16">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+      <div>
+        <span class="text-brown text-sm font-semibold uppercase tracking-wider"><i class="fas fa-crown mr-2"></i>Koleksi Kami</span>
+        <h2 class="font-serif font-bold text-3xl text-brown-dark mt-2">Menu Terlaris</h2>
+        <p class="text-warm-gray mt-1 text-sm">Dipilih oleh ribuan pelanggan kami</p>
+      </div>
+      <div id="filter-pills" class="flex flex-wrap gap-2">
+        <button onclick="filterCategory('all')" class="cat-pill active text-sm px-5 py-2 rounded-full border border-brown/30 hover:bg-brown hover:text-white transition-all font-medium shadow-sm">Semua</button>
+        <button onclick="filterCategory('Roti Manis')" class="cat-pill text-sm px-5 py-2 rounded-full border border-brown/30 hover:bg-brown hover:text-white transition-all font-medium text-brown">Roti Manis</button>
+        <button onclick="filterCategory('Roti Tawar')" class="cat-pill text-sm px-5 py-2 rounded-full border border-brown/30 hover:bg-brown hover:text-white transition-all font-medium text-brown">Roti Tawar</button>
+        <button onclick="filterCategory('Kue')" class="cat-pill text-sm px-5 py-2 rounded-full border border-brown/30 hover:bg-brown hover:text-white transition-all font-medium text-brown">Kue</button>
+        <button onclick="filterCategory('Spesial')" class="cat-pill text-sm px-5 py-2 rounded-full border border-brown/30 hover:bg-brown hover:text-white transition-all font-medium text-brown">Spesial</button>
+      </div>
+    </div>
+
+    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    <div class="text-center mt-10">
+      <p id="no-product" class="text-warm-gray hidden">Tidak ada produk di kategori ini.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TENTANG & OWNER SECTION (SAMPINGAN) -->
+<section id="tentang" class="py-20 px-6 md:px-16 bg-brown-dark text-cream relative overflow-hidden">
+  <div class="absolute inset-0 opacity-5">
+    <div class="w-full h-full" style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 20px 20px;"></div>
+  </div>
+  <div class="max-w-7xl mx-auto relative">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      <!-- Kolom Kiri: Tentang Amoy -->
+      <div class="space-y-6">
+        <div>
+          <span class="text-brown-light text-xs uppercase tracking-widest font-semibold"><i class="fas fa-info-circle mr-1"></i>Tentang Amoy</span>
+          <h2 class="font-serif font-bold text-4xl mt-3 mb-5 leading-tight">Cinta dalam Setiap<br/><em class="text-brown-light">Lembaran Roti</em></h2>
+          <p class="text-cream/80 leading-relaxed mb-6">
+            Amoy lahir dari kecintaan mendalam terhadap seni memanggang. Setiap roti dibuat dengan tangan, menggunakan resep tradisional yang dipadukan dengan teknik modern untuk menghasilkan cita rasa yang tak terlupakan.
+          </p>
+          <p class="text-cream/80 leading-relaxed mb-8">
+            Kami menggunakan tepung pilihan, mentega berkualitas, dan bahan alami tanpa pengawet — karena kami percaya makanan yang baik dimulai dari bahan yang jujur.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#katalog" class="inline-block bg-cream text-brown-dark px-8 py-3 rounded-full font-semibold hover:bg-warm-light transition-colors inline-flex items-center gap-2">
+              <span>Pesan Sekarang</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="#owner" class="inline-block border border-cream/30 text-cream px-8 py-3 rounded-full font-semibold hover:bg-cream/10 transition-colors inline-flex items-center gap-2">
+              <i class="fas fa-user"></i>
+              <span>Kenali Owner</span>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Keunggulan dalam grid -->
+        <div class="grid grid-cols-2 gap-4 pt-6">
+          <div class="bg-white/10 rounded-2xl overflow-hidden backdrop-blur-sm hover:bg-white/20 transition-all">
+            <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=200&q=80&fit=crop" alt="Bahan Alami" class="w-full h-28 object-cover"/>
+            <div class="p-3 text-center font-semibold text-sm"><i class="fas fa-leaf mr-1"></i>Bahan Alami</div>
+          </div>
+          <div class="bg-white/10 rounded-2xl overflow-hidden backdrop-blur-sm hover:bg-white/20 transition-all">
+            <img src="https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=200&q=80&fit=crop" alt="Buatan Tangan" class="w-full h-28 object-cover"/>
+            <div class="p-3 text-center font-semibold text-sm"><i class="fas fa-hands mr-1"></i>Buatan Tangan</div>
+          </div>
+          <div class="bg-white/10 rounded-2xl overflow-hidden backdrop-blur-sm hover:bg-white/20 transition-all">
+            <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&q=80&fit=crop" alt="Panggang Segar" class="w-full h-28 object-cover"/>
+            <div class="p-3 text-center font-semibold text-sm"><i class="fas fa-fire mr-1"></i>Panggang Segar</div>
+          </div>
+          <div class="bg-white/10 rounded-2xl overflow-hidden backdrop-blur-sm hover:bg-white/20 transition-all">
+            <img src="https://i.pinimg.com/1200x/4a/5c/e2/4a5ce21eda9fd18b0a171df85e5ae984.jpg" alt="Penuh Cinta" class="w-full h-28 object-cover"/>
+            <div class="p-3 text-center font-semibold text-sm"><i class="fas fa-heart mr-1"></i>Penuh Cinta</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kolom Kanan: Owner Section -->
+      <div id="owner" class="bg-cream/10 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-white/20 shadow-2xl scroll-mt-20">
+        <div class="text-center mb-6">
+          <span class="text-brown-light text-xs uppercase tracking-widest font-semibold"><i class="fas fa-crown mr-1"></i>Meet Our Founder</span>
+          <h3 class="font-serif font-bold text-3xl text-cream mt-2">Pemilik Amoy</h3>
+          <div class="w-20 h-0.5 bg-amber-soft mx-auto mt-3"></div>
+        </div>
+        
+        <!-- Foto Owner -->
+        <div class="flex justify-center mb-6">
+          <div class="relative">
+            <div class="absolute inset-0 rounded-full bg-gradient-to-r from-amber-soft to-brown animate-pulse opacity-50 blur-md"></div>
+            <img 
+              src="img/owner.jpg" 
+              alt="Owner Amoy Bakery" 
+              class="owner-img w-40 h-40 md:w-48 md:h-48 rounded-full object-cover border-4 border-cream shadow-xl relative z-10"
+            />
+            <div class="absolute -bottom-2 -right-2 bg-amber-soft rounded-full p-2 shadow-lg z-20">
+              <i class="fas fa-heart text-cream"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Nama Owner -->
+        <div class="text-center mb-4">
+          <h4 class="font-serif font-bold text-2xl text-cream">Ghassan Nichole</h4>
+          <p class="text-brown-light text-sm mt-1"><i class="fas fa-certificate mr-1"></i> Founder & Head Baker</p>
+        </div>
+        
+        <!-- Quote / Motto -->
+        <div class="bg-cream/10 rounded-xl p-4 mb-5 text-center">
+          <i class="fas fa-quote-left text-brown-light text-lg mr-1"></i>
+          <p class="text-cream/90 text-sm italic inline">Roti yang baik dimulai dari hati yang tulus</p>
+          <i class="fas fa-quote-right text-brown-light text-lg ml-1"></i>
+        </div>
+        
+        <!-- Deskripsi Owner -->
+        <p class="text-cream/80 text-sm leading-relaxed mb-5 text-center">
+          Memulai perjalanan Amoy pada tahun 2020 setelah belajar pastry di Prancis selama 5 tahun. 
+          Kecintaannya pada roti artisan mendorongnya untuk menciptakan cita rasa yang autentik 
+          dengan sentuhan lokal.
+        </p>
+        
+        <!-- Statistik Owner -->
+        <div class="grid grid-cols-3 gap-3 text-center pt-4 border-t border-white/20">
+          <div>
+            <div class="font-serif font-bold text-xl text-amber-soft">5+</div>
+            <div class="text-xs text-cream/70">Tahun Pengalaman</div>
+          </div>
+          <div>
+            <div class="font-serif font-bold text-xl text-amber-soft">50+</div>
+            <div class="text-xs text-cream/70">Resep Rahasia</div>
+          </div>
+          <div>
+            <div class="font-serif font-bold text-xl text-amber-soft">1.2k+</div>
+            <div class="text-xs text-cream/70">Pelanggan</div>
+          </div>
+        </div>
+        
+        <!-- Sosial Media Owner - Instagram, WhatsApp, YouTube dengan Link Aktif -->
+        <div class="flex justify-center gap-6 mt-6 pt-3">
+          <a href="https://www.instagram.com/_ssansthetic?igsh=eWF6d3F2djBiYmpm" target="_blank" rel="noopener noreferrer" 
+             class="social-icon text-cream/70 hover:text-cream transition-all hover:scale-110 group">
+            <div class="bg-white/10 rounded-full w-10 h-10 flex items-center justify-center group-hover:bg-gradient-to-tr group-hover:from-pink-500 group-hover:to-orange-500 transition-all">
+              <i class="fab fa-instagram text-xl"></i>
+            </div>
+          </a>
+          <a href="https://wa.me/6285717113401" target="_blank" rel="noopener noreferrer" 
+             class="social-icon text-cream/70 hover:text-cream transition-all hover:scale-110 group">
+            <div class="bg-white/10 rounded-full w-10 h-10 flex items-center justify-center group-hover:bg-green-600 transition-all">
+              <i class="fab fa-whatsapp text-xl"></i>
+            </div>
+          </a>
+          <a href="https://youtube.com/@ghassansabiyan9994?si=lD-pneNav8idQYD4" target="_blank" rel="noopener noreferrer" 
+             class="social-icon text-cream/70 hover:text-cream transition-all hover:scale-110 group">
+            <div class="bg-white/10 rounded-full w-10 h-10 flex items-center justify-center group-hover:bg-red-600 transition-all">
+              <i class="fab fa-youtube text-xl"></i>
+            </div>
+          </a>
+        </div>
+        
+        <!-- Teks Follow -->
+        <p class="text-center text-cream/50 text-xs mt-4">
+          <i class="fas fa-share-alt mr-1"></i> Follow & Hubungi Owner
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-brown-dark/95 text-cream/70 py-10 px-6 md:px-16 text-sm text-center border-t border-white/10">
+  <div class="max-w-7xl mx-auto">
+    <div class="font-serif font-bold text-lg text-cream mb-1">Amoy Artisan Bakery</div>
+    <p class="mb-4"><i class="fas fa-map-marker-alt mr-1"></i> Jl. Roti Segar No. 12, Jakarta Selatan · <i class="fas fa-phone mr-1"></i> 08123456789</p>
+    <div class="flex justify-center gap-4 mb-4">
+      <a href="https://www.instagram.com/amoybakery" target="_blank" class="hover:text-cream transition-colors"><i class="fab fa-instagram text-lg"></i></a>
+      <a href="https://www.youtube.com/@amoybakery" target="_blank" class="hover:text-cream transition-colors"><i class="fab fa-youtube text-lg"></i></a>
+      <a href="https://wa.me/6281234567890" target="_blank" class="hover:text-cream transition-colors"><i class="fab fa-whatsapp text-lg"></i></a>
+    </div>
+    <p class="text-cream/40 text-xs">© 2024 Amoy. Dibuat dengan 🤎 untuk tugas kuliah.</p>
+  </div>
+</footer>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="modal-overlay absolute inset-0 bg-brown-dark/40" onclick="closeModal()"></div>
+  <div class="relative bg-cream rounded-3xl shadow-2xl max-w-lg w-full p-0 overflow-hidden animate-fade-up">
+    <div id="modal-img" class="h-56 overflow-hidden bg-warm-light">
+      <img id="modal-img-tag" src="" alt="" class="w-full h-full object-cover"/>
+    </div>
+    <div class="p-6">
+      <div class="flex items-start justify-between mb-2">
+        <div>
+          <span id="modal-badge" class="text-xs font-semibold uppercase tracking-wide text-brown bg-warm-light px-3 py-1 rounded-full"></span>
+          <h3 id="modal-name" class="font-serif font-bold text-2xl text-brown-dark mt-2"></h3>
+        </div>
+        <button onclick="closeModal()" class="text-warm-gray hover:text-brown-dark text-2xl leading-none mt-1 transition-colors">&times;</button>
+      </div>
+      <div class="flex items-center gap-2 mb-3" id="modal-rating"></div>
+      <p id="modal-desc" class="text-warm-gray text-sm leading-relaxed mb-4"></p>
+      <div class="flex items-center justify-between mb-5">
+        <div id="modal-price" class="font-serif font-bold text-2xl text-brown"></div>
+        <div class="flex items-center gap-3 bg-white rounded-full px-4 py-2 shadow-sm">
+          <button onclick="changeQty(-1)" class="text-brown-dark font-bold text-lg leading-none w-6 text-center hover:text-brown transition-colors">−</button>
+          <span id="modal-qty" class="font-semibold text-brown-dark w-4 text-center">1</span>
+          <button onclick="changeQty(1)" class="text-brown-dark font-bold text-lg leading-none w-6 text-center hover:text-brown transition-colors">+</button>
+        </div>
+      </div>
+      <button onclick="addToCartFromModal()" class="w-full bg-brown text-cream py-3.5 rounded-2xl font-semibold hover:bg-brown-dark transition-colors text-base shadow-md inline-flex items-center justify-center gap-2">
+        <i class="fas fa-cart-plus"></i> Tambah ke Keranjang
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CART SIDEBAR -->
+<div id="cart-overlay" class="fixed inset-0 z-50 hidden bg-black/50" onclick="toggleCart()"></div>
+<aside id="cart-sidebar" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-cream z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+  <div class="p-6 border-b border-warm-light flex items-center justify-between">
+    <h2 class="font-serif font-bold text-xl text-brown-dark"><i class="fas fa-shopping-bag mr-2"></i>Keranjang Belanja</h2>
+    <button onclick="toggleCart()" class="text-warm-gray hover:text-brown-dark text-2xl transition-colors">&times;</button>
+  </div>
+  <div class="flex-1 overflow-y-auto relative">
+    <div id="cart-empty" class="flex flex-col items-center justify-center h-full text-center p-6 absolute inset-0">
+      <i class="fas fa-shopping-cart text-6xl text-warm-light mb-4"></i>
+      <p class="text-warm-gray font-medium">Keranjangmu masih kosong</p>
+      <p class="text-warm-gray text-sm mt-1">Yuk, pilih roti favoritmu!</p>
+    </div>
+    <div id="cart-list" class="p-6 space-y-4"></div>
+  </div>
+  <div id="cart-footer" class="hidden p-6 border-t border-warm-light space-y-4">
+    <div class="flex justify-between text-sm text-warm-gray">
+      <span>Subtotal</span>
+      <span id="cart-subtotal" class="font-semibold text-brown-dark">Rp 0</span>
+    </div>
+    <div class="flex justify-between text-sm text-warm-gray">
+      <span>Ongkir</span>
+      <span class="font-semibold text-green-600"><i class="fas fa-truck"></i> Gratis</span>
+    </div>
+    <div class="flex justify-between font-bold text-brown-dark">
+      <span>Total</span>
+      <span id="cart-total" class="font-serif text-xl">Rp 0</span>
+    </div>
+    <button onclick="goCheckout()" class="block w-full bg-brown text-cream text-center py-3.5 rounded-2xl font-semibold hover:bg-brown-dark transition-colors shadow-md inline-flex items-center justify-center gap-2">
+      <i class="fas fa-credit-card"></i> Checkout Sekarang →
+    </button>
+    <button onclick="clearCart()" class="w-full text-warm-gray text-sm hover:text-brown transition-colors"><i class="fas fa-trash-alt mr-1"></i> Kosongkan keranjang</button>
+  </div>
+</aside>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-brown-dark text-cream px-6 py-3 rounded-full shadow-xl text-sm font-medium opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2">
+  <i class="fas fa-check-circle"></i>
+  <span>Ditambahkan ke keranjang!</span>
+</div>
+
+<script>
+// ─── PRODUCT DATA WITH RATINGS ───
+const products = [
+  {
+    id: 1, name: 'Croissant Butter', category: 'Roti Manis', price: 18000,
+    img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&q=80&fit=crop',
+    desc: 'Croissant berlapis mentega premium, renyah di luar dan lembut di dalam. Sempurna untuk sarapan.',
+    badge: 'Terlaris', isNew: false, rating: 4.9, ratingCount: 128
+  },
+  {
+    id: 2, name: 'Sourdough Classic', category: 'Roti Tawar', price: 45000,
+    img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80&fit=crop',
+    desc: 'Roti sourdough fermentasi alami 24 jam, kulit tebal renyah dengan crumb yang chewy dan aroma asam khas.',
+    badge: 'Artisan', isNew: false, rating: 4.8, ratingCount: 95
+  },
+  {
+    id: 3, name: 'Cinnamon Roll', category: 'Roti Manis', price: 22000,
+    img: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=400&q=80&fit=crop',
+    desc: 'Gulungan kayu manis dengan lapisan cream cheese frosting yang melimpah. Hangat dan wangi.',
+    badge: 'Favorit', isNew: true, rating: 4.7, ratingCount: 203
+  },
+  {
+    id: 4, name: 'Roti Tawar Madu', category: 'Roti Tawar', price: 28000,
+    img: 'https://i.pinimg.com/1200x/95/d2/19/95d2192454342148ffad4e78fc8e1640.jpg',
+    desc: 'Roti tawar lembut dengan sentuhan madu asli. Cocok untuk toast atau sandwich.',
+    badge: null, isNew: false, rating: 4.6, ratingCount: 67
+  },
+  {
+    id: 5, name: 'Pain au Chocolat', category: 'Roti Manis', price: 20000,
+    img: 'https://i.pinimg.com/736x/89/02/93/8902938eb7702a63dcb786aeeccd115f.jpg',
+    desc: 'Pastry berlapis dengan dark chocolate di dalamnya. Renyah, buttery, dan kaya coklat.',
+    badge: 'Baru', isNew: true, rating: 4.9, ratingCount: 156
+  },
+  {
+    id: 6, name: 'Chiffon Cake Pandan', category: 'Kue', price: 65000,
+    img: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400&q=80&fit=crop',
+    desc: 'Kue chiffon tekstur super lembut dengan aroma pandan segar yang kuat dan alami.',
+    badge: null, isNew: false, rating: 4.8, ratingCount: 89
+  },
+  {
+    id: 7, name: 'Banana Bread', category: 'Kue', price: 38000,
+    img: 'https://images.unsplash.com/photo-1574085733277-851d9d856a3a?w=400&q=80&fit=crop',
+    desc: 'Roti pisang klasik dengan topping walnut, lembap dan manis alami dari pisang matang pilihan.',
+    badge: 'Terlaris', isNew: false, rating: 4.9, ratingCount: 312
+  },
+  {
+    id: 8, name: 'Focaccia Rosemary', category: 'Spesial', price: 52000,
+    img: 'https://images.unsplash.com/photo-1574085733277-851d9d856a3a?w=400&q=80&fit=crop',
+    desc: 'Focaccia Italia dengan rosemary segar, olive oil extra virgin, dan taburan fleur de sel.',
+    badge: 'Premium', isNew: true, rating: 4.8, ratingCount: 45
+  },
+  {
+    id: 9, name: 'Roti Krim Coklat', category: 'Roti Manis', price: 12000,
+    img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80&fit=crop',
+    desc: 'Roti lembut isi krim coklat susu, cocok untuk camilan kapan saja.',
+    badge: null, isNew: false, rating: 4.5, ratingCount: 178
+  },
+  {
+    id: 10, name: 'Brioche', category: 'Spesial', price: 35000,
+    img: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=400&q=80&fit=crop',
+    desc: 'Roti Prancis super kaya mentega dan telur, tekstur mirip kue dengan aroma luar biasa.',
+    badge: 'Spesial', isNew: false, rating: 4.9, ratingCount: 234
+  },
+  {
+    id: 11, name: 'Red Velvet Loaf', category: 'Kue', price: 72000,
+    img: 'https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?w=400&q=80&fit=crop',
+    desc: 'Loaf cake red velvet dengan cream cheese frosting swirl. Visual menawan, rasa luar biasa.',
+    badge: 'Baru', isNew: true, rating: 4.9, ratingCount: 67
+  },
+  {
+    id: 12, name: 'Baguette Clasique', category: 'Roti Tawar', price: 25000,
+    img: 'https://i.pinimg.com/1200x/f7/11/99/f71199e9a4814059c2b376e8d3edcc8a.jpg',
+    desc: 'Baguette Prancis autentik dengan kulit garing dan bagian dalam yang kenyal. Panggang segar tiap pagi.',
+    badge: null, isNew: false, rating: 4.7, ratingCount: 123
+  },
+];
+
+let cart = JSON.parse(localStorage.getItem('amoy_cart') || '[]');
+let currentProduct = null;
+let modalQty = 1;
+
+// Helper function to render star rating
+function renderStars(rating, showCount = true, count = 0) {
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
+  let starsHtml = '<div class="star-rating rating-static flex items-center gap-0.5">';
+  
+  for (let i = 1; i <= 5; i++) {
+    if (i <= fullStars) {
+      starsHtml += '<i class="fas fa-star text-amber-soft"></i>';
+    } else if (i === fullStars + 1 && hasHalfStar) {
+      starsHtml += '<i class="fas fa-star-half-alt text-amber-soft"></i>';
+    } else {
+      starsHtml += '<i class="far fa-star text-warm-light"></i>';
+    }
+  }
+  
+  starsHtml += `<span class="text-xs text-warm-gray ml-1">${rating.toFixed(1)}</span>`;
+  if (showCount) {
+    starsHtml += `<span class="text-xs text-warm-gray ml-1">(${count})</span>`;
+  }
+  starsHtml += '</div>';
+  
+  return starsHtml;
+}
+
+// ─── RENDER PRODUCTS ─────────────────────────────────
+function renderProducts(data) {
+  const grid = document.getElementById('product-grid');
+  const empty = document.getElementById('no-product');
+  grid.innerHTML = '';
+  if (data.length === 0) { empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  data.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card bg-white rounded-2xl overflow-hidden border border-warm-light shadow-sm cursor-pointer';
+    card.innerHTML = `
+      <div class="card-img-wrap h-48 relative" onclick="openModal(${p.id})">
+        <img 
+          src="${p.img}" 
+          alt="${p.name}" 
+          class="w-full h-full object-cover"
+          onerror="this.parentElement.style.background='linear-gradient(135deg,#f4d4b0,#fde8cc)'; this.style.display='none';"
+        />
+        ${p.badge ? `<span class="absolute top-3 left-3 badge-new text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shadow-md">${p.badge}</span>` : ''}
+        ${p.isNew ? `<span class="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shadow-md"><i class="fas fa-fire mr-0.5"></i>Baru</span>` : ''}
+      </div>
+      <div class="p-4">
+        <span class="text-[11px] text-brown font-semibold uppercase tracking-wide">${p.category}</span>
+        <h3 class="font-serif font-bold text-brown-dark mt-0.5 mb-1 text-base leading-snug">${p.name}</h3>
+        <div class="mb-2">
+          ${renderStars(p.rating, true, p.ratingCount)}
+        </div>
+        <p class="text-warm-gray text-xs leading-relaxed mb-3 line-clamp-2">${p.desc.substring(0, 60)}${p.desc.length > 60 ? '...' : ''}</p>
+        <div class="flex items-center justify-between">
+          <span class="font-serif font-bold text-brown text-lg">${formatRp(p.price)}</span>
+          <button onclick="event.stopPropagation(); quickAdd(${p.id})" class="bg-brown text-cream text-xs px-3 py-2 rounded-xl hover:bg-brown-dark transition-all font-medium hover:shadow-md">
+            <i class="fas fa-plus mr-1"></i> Keranjang
+          </button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ─── FILTER ──────────────────────────────────────────
+function filterCategory(cat) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.cat-pill').forEach(p => {
+    const matches = (cat === 'all' && p.textContent.trim() === 'Semua') || p.textContent.trim() === cat;
+    if (matches) p.classList.add('active');
+  });
+  const filtered = cat === 'all' ? products : products.filter(p => p.category === cat);
+  renderProducts(filtered);
+  document.getElementById('katalog').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── MODAL ───────────────────────────────────────────
+function openModal(id) {
+  currentProduct = products.find(p => p.id === id);
+  modalQty = 1;
+
+  document.getElementById('modal-img-tag').src = currentProduct.img;
+  document.getElementById('modal-img-tag').alt = currentProduct.name;
+  document.getElementById('modal-badge').textContent = currentProduct.category;
+  document.getElementById('modal-name').textContent = currentProduct.name;
+  document.getElementById('modal-desc').textContent = currentProduct.desc;
+  document.getElementById('modal-price').textContent = formatRp(currentProduct.price);
+  document.getElementById('modal-qty').textContent = modalQty;
+  document.getElementById('modal-rating').innerHTML = renderStars(currentProduct.rating, true, currentProduct.ratingCount);
+
+  const modal = document.getElementById('product-modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeModal() {
+  const modal = document.getElementById('product-modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  currentProduct = null;
+}
+
+function changeQty(delta) {
+  modalQty = Math.max(1, modalQty + delta);
+  document.getElementById('modal-qty').textContent = modalQty;
+}
+
+function addToCartFromModal() {
+  if (!currentProduct) return;
+  addToCart(currentProduct, modalQty);
+  closeModal();
+}
+
+// ─── CART ────────────────────────────────────────────
+function quickAdd(id) {
+  const p = products.find(p => p.id === id);
+  addToCart(p, 1);
+}
+
+function addToCart(product, qty) {
+  const existing = cart.find(i => i.id === product.id);
+  if (existing) existing.qty += qty;
+  else cart.push({ ...product, qty });
+  saveCart();
+  updateCartUI();
+  showToast();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  saveCart();
+  updateCartUI();
+}
+
+function changeCartQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  saveCart();
+  updateCartUI();
+}
+
+function goCheckout() { 
+  if (cart.length === 0) {
+    showToast('Keranjang masih kosong!', 'error');
+    return;
+  }
+  window.location.href = 'checkout.html'; 
+}
+
+function clearCart() { 
+  if (confirm('Yakin ingin mengosongkan keranjang?')) {
+    cart = []; 
+    saveCart(); 
+    updateCartUI();
+    showToast('Keranjang dikosongkan');
+  }
+}
+
+function saveCart() { localStorage.setItem('amoy_cart', JSON.stringify(cart)); }
+
+function updateCartUI() {
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+  const countEl = document.getElementById('cart-count');
+  if (count > 0) { countEl.textContent = count; countEl.classList.remove('hidden'); }
+  else { countEl.classList.add('hidden'); }
+
+  const listEl   = document.getElementById('cart-list');
+  const emptyEl  = document.getElementById('cart-empty');
+  const footerEl = document.getElementById('cart-footer');
+
+  if (cart.length === 0) {
+    listEl.innerHTML = '';
+    emptyEl.style.display = 'flex';
+    footerEl.classList.add('hidden');
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  footerEl.classList.remove('hidden');
+  listEl.innerHTML = '';
+
+  cart.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'flex items-center gap-3 bg-white rounded-2xl p-3 border border-warm-light shadow-sm';
+    div.innerHTML = `
+      <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
+        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover"
+          onerror="this.parentElement.style.background='linear-gradient(135deg,#f4d4b0,#fde8cc)'; this.style.display='none';" />
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold text-brown-dark text-sm truncate">${item.name}</div>
+        <div class="text-brown text-sm font-serif font-bold">${formatRp(item.price)}</div>
+        <div class="flex items-center gap-2 mt-1">
+          <button data-action="minus" data-id="${item.id}" class="w-6 h-6 rounded-full bg-warm-light text-brown-dark font-bold text-sm flex items-center justify-center hover:bg-brown hover:text-white transition-colors">−</button>
+          <span class="text-sm font-semibold text-brown-dark w-4 text-center">${item.qty}</span>
+          <button data-action="plus" data-id="${item.id}" class="w-6 h-6 rounded-full bg-warm-light text-brown-dark font-bold text-sm flex items-center justify-center hover:bg-brown hover:text-white transition-colors">+</button>
+        </div>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="text-sm font-bold text-brown-dark">${formatRp(item.price * item.qty)}</div>
+        <button data-action="remove" data-id="${item.id}" class="text-red-400 hover:text-red-600 text-xs mt-1 transition-colors block"><i class="fas fa-trash-alt"></i> Hapus</button>
+      </div>
+    `;
+    listEl.appendChild(div);
+  });
+
+  document.getElementById('cart-subtotal').textContent = formatRp(total);
+  document.getElementById('cart-total').textContent    = formatRp(total);
+}
+
+function toggleCart() {
+  const sidebar = document.getElementById('cart-sidebar');
+  const overlay = document.getElementById('cart-overlay');
+  const isOpen  = !sidebar.classList.contains('translate-x-full');
+  if (isOpen) {
+    sidebar.classList.add('translate-x-full');
+    overlay.classList.add('hidden');
+  } else {
+    sidebar.classList.remove('translate-x-full');
+    overlay.classList.remove('hidden');
+    updateCartUI();
+  }
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  const span = toast.querySelector('span');
+  const icon = toast.querySelector('i');
+  if (type === 'error') {
+    icon.className = 'fas fa-exclamation-circle';
+    span.textContent = message || 'Gagal!';
+  } else {
+    icon.className = 'fas fa-check-circle';
+    span.textContent = message || 'Ditambahkan ke keranjang!';
+  }
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+  setTimeout(() => {
+    icon.className = 'fas fa-check-circle';
+    span.textContent = 'Ditambahkan ke keranjang!';
+  }, 2000);
+}
+
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 50) {
+    nav.style.background = 'rgba(255,248,240,0.95)';
+    nav.style.backdropFilter = 'blur(12px)';
+    nav.style.boxShadow = '0 4px 20px rgba(107,58,31,0.1)';
+  } else {
+    nav.style.background = 'transparent';
+    nav.style.backdropFilter = 'none';
+    nav.style.boxShadow = 'none';
+  }
+});
+
+function formatRp(n) { return 'Rp ' + n.toLocaleString('id-ID'); }
+
+document.getElementById('cart-list').addEventListener('click', function(e) {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id     = parseInt(btn.getAttribute('data-id'));
+  const action = btn.getAttribute('data-action');
+  if (action === 'minus')  changeCartQty(id, -1);
+  if (action === 'plus')   changeCartQty(id, +1);
+  if (action === 'remove') removeFromCart(id);
+});
+
+renderProducts(products);
+updateCartUI();
+</script>
+</body>
+</html>
