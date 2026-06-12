@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Amoy Artisan Bakery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream:   { DEFAULT: '#FFF8F0', dark: '#F5EBD8' },
+            brown:   { light: '#C8956C', DEFAULT: '#A0522D', dark: '#6B3A1F' },
+            amber:   { soft: '#F4A261', DEFAULT: '#E76F51' },
+            warm:    { gray: '#7A6C5D', light: '#EDE0D0' },
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'Georgia', 'serif'],
+            sans:  ['DM Sans', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: linear-gradient(135deg, #FFF8F0 0%, #F5EBD8 100%); min-height: 100vh; }
+    .checkout-card {
+      transition: all 0.3s ease;
+    }
+    .form-input:focus {
+      box-shadow: 0 0 0 3px rgba(160,82,45,0.1);
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #FFF8F0; }
+    ::-webkit-scrollbar-thumb { background: #C8956C; border-radius: 3px; }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .fade-up {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    .step {
+      transition: all 0.3s ease;
+    }
+    .step-active {
+      background: #A0522D;
+      color: white;
+      border-color: #A0522D;
+    }
+    .step-completed {
+      background: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+    
+    input, textarea, select {
+      transition: all 0.2s ease;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      border-color: #A0522D;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(160,82,45,0.1);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="bg-cream/95 backdrop-blur-sm shadow-sm px-6 py-4 sticky top-0 z-50 border-b border-warm-light">
+  <div class="max-w-6xl mx-auto flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 group">
+      <div class="w-9 h-9 rounded-full bg-brown overflow-hidden shadow">
+        <img src="https://i.pinimg.com/736x/b6/1b/1a/b61b1a25f4041803accb47cb18f36011.jpg" alt="Logo" class="w-full h-full object-cover" />
+      </div>
+      <span class="font-serif font-bold text-xl text-brown-dark tracking-wide">Amoy</span>
+    </a>
+    <div class="flex items-center gap-4">
+      <a href="index.html" class="text-warm-gray hover:text-brown transition-colors text-sm">
+        <i class="fas fa-arrow-left mr-1"></i> Kembali ke Toko
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="max-w-6xl mx-auto px-4 py-8 md:px-6">
+  
+  <!-- Steps -->
+  <div class="mb-10">
+    <div class="flex items-center justify-center gap-2 md:gap-6">
+      <div class="flex items-center">
+        <div id="step1-icon" class="step w-10 h-10 rounded-full bg-brown text-white flex items-center justify-center font-bold border-2 border-brown">1</div>
+        <span class="ml-2 text-sm font-medium text-brown-dark hidden sm:inline">Keranjang</span>
+      </div>
+      <div class="w-12 md:w-24 h-0.5 bg-warm-light"></div>
+      <div class="flex items-center">
+        <div id="step2-icon" class="step w-10 h-10 rounded-full bg-white text-warm-gray flex items-center justify-center font-bold border-2 border-warm-light">2</div>
+        <span class="ml-2 text-sm font-medium text-warm-gray hidden sm:inline">Data Diri</span>
+      </div>
+      <div class="w-12 md:w-24 h-0.5 bg-warm-light"></div>
+      <div class="flex items-center">
+        <div id="step3-icon" class="step w-10 h-10 rounded-full bg-white text-warm-gray flex items-center justify-center font-bold border-2 border-warm-light">3</div>
+        <span class="ml-2 text-sm font-medium text-warm-gray hidden sm:inline">Konfirmasi</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1: Review Cart -->
+  <div id="step1" class="step-content">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-lg border border-warm-light p-6 checkout-card">
+          <h2 class="font-serif font-bold text-2xl text-brown-dark mb-4">
+            <i class="fas fa-shopping-bag text-brown mr-2"></i> Ringkasan Pesanan
+          </h2>
+          <div id="cart-items" class="space-y-3 max-h-96 overflow-y-auto pr-2"></div>
+          <div class="mt-4 pt-4 border-t border-warm-light">
+            <label class="block text-sm font-medium text-warm-gray mb-2">
+              <i class="fas fa-pencil-alt mr-1"></i> Catatan untuk Pesanan
+            </label>
+            <textarea id="order-notes" rows="2" placeholder="Contoh: ingin ditambah lilin, request tanpa gula, dll..." 
+              class="w-full px-4 py-2 border border-warm-light rounded-xl focus:border-brown transition"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-1">
+        <div class="bg-gradient-to-br from-brown-dark to-brown rounded-2xl shadow-xl p-6 text-white sticky top-24">
+          <h3 class="font-serif font-bold text-xl mb-4">
+            <i class="fas fa-receipt mr-2"></i> Ringkasan Belanja
+          </h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span>Total Item</span>
+              <span id="total-items" class="font-semibold">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Subtotal</span>
+              <span id="subtotal" class="font-semibold">Rp 0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Ongkos Kirim</span>
+              <span class="text-green-300"><i class="fas fa-truck"></i> Gratis</span>
+            </div>
+            <div class="border-t border-white/20 pt-3 mt-2">
+              <div class="flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span id="total" class="font-serif">Rp 0</span>
+              </div>
+            </div>
+          </div>
+          <button onclick="goToStep2()" class="w-full mt-6 bg-amber-soft text-brown-dark py-3 rounded-xl font-semibold hover:bg-amber-600 transition-all shadow-md hover:shadow-xl transform hover:-translate-y-0.5">
+            Lanjut ke Data Diri →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Customer Data Form -->
+  <div id="step2" class="step-content hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-lg border border-warm-light p-6 checkout-card">
+          <h2 class="font-serif font-bold text-2xl text-brown-dark mb-4">
+            <i class="fas fa-user-circle text-brown mr-2"></i> Informasi Pemesan
+          </h2>
+          
+          <form id="checkout-form" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-warm-gray mb-2">
+                  <i class="fas fa-user mr-1 text-brown"></i> Nama Lengkap <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="customer-name" required 
+                  class="form-input w-full px-4 py-3 border border-warm-light rounded-xl focus:border-brown transition"
+                  placeholder="Contoh: Ghassan Nichole" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-warm-gray mb-2">
+                  <i class="fab fa-whatsapp mr-1 text-green-600"></i> Nomor WhatsApp <span class="text-red-500">*</span>
+                </label>
+                <input type="tel" id="customer-phone" required 
+                  class="form-input w-full px-4 py-3 border border-warm-light rounded-xl focus:border-brown transition"
+                  placeholder="081234567890" />
+                <p class="text-xs text-warm-gray mt-1">Nomor akan digunakan untuk konfirmasi pesanan</p>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-semibold text-warm-gray mb-2">
+                <i class="fas fa-envelope mr-1 text-brown"></i> Email (Opsional)
+              </label>
+              <input type="email" id="customer-email" 
+                class="form-input w-full px-4 py-3 border border-warm-light rounded-xl focus:border-brown transition"
+                placeholder="contoh@email.com" />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-semibold text-warm-gray mb-2">
+                <i class="fas fa-map-marker-alt mr-1 text-red-500"></i> Alamat Lengkap <span class="text-red-500">*</span>
+              </label>
+              <textarea id="customer-address" rows="3" required
+                class="form-input w-full px-4 py-3 border border-warm-light rounded-xl focus:border-brown transition"
+                placeholder="Jalan, Nomor, RT/RW, Kelurahan, Kecamatan, Kota, Kode Pos"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-warm-gray mb-2">
+                  <i class="fas fa-truck-fast mr-1"></i> Metode Pengiriman
+                </label>
+                <select id="delivery-method" class="w-full px-4 py-3 border border-warm-light rounded-xl focus:border-brown transition bg-white">
+                  <option value="Same Day Delivery (Gratis)">🚚 Same Day Delivery (Gratis)</option>
+                  <option value="Jadwal Reguler (H+1)">📅 Jadwal Reguler (H+1)</option>
+                  <option value="Ambil di Toko">🏪 Ambil di Toko (Gratis)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-warm-gray mb-2">
+                  <i class="fas fa-calendar-alt mr-1"></i> Tanggal Pengiriman
+                </label>
+                <input type="date" id="delivery-date" 
+                  class="w-full px-4 py-3 border border-warm-light rounded-xl focus:border-brown transition" />
+              </div>
+            </div>
+            
+            <div class="bg-cream rounded-xl p-4 border border-amber-soft/30">
+              <div class="flex gap-3">
+                <i class="fas fa-info-circle text-amber-soft text-xl"></i>
+                <p class="text-sm text-brown-dark">Pesanan akan dikirim melalui WhatsApp ke pemilik toko (Ghassan Nichole). Kami akan segera mengkonfirmasi pesanan Anda.</p>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="lg:col-span-1">
+        <div class="bg-gradient-to-br from-brown-dark to-brown rounded-2xl shadow-xl p-6 text-white sticky top-24">
+          <h3 class="font-serif font-bold text-xl mb-4">
+            <i class="fas fa-clipboard-list mr-2"></i> Pesanan Anda
+          </h3>
+          <div id="order-summary" class="space-y-2 text-sm max-h-64 overflow-y-auto mb-4"></div>
+          <div class="border-t border-white/20 pt-3">
+            <div class="flex justify-between text-lg font-bold">
+              <span>Total Tagihan</span>
+              <span id="step2-total" class="font-serif">Rp 0</span>
+            </div>
+          </div>
+          <button onclick="goToStep3()" class="w-full mt-6 bg-amber-soft text-brown-dark py-3 rounded-xl font-semibold hover:bg-amber-600 transition-all shadow-md">
+            Lanjut ke Konfirmasi →
+          </button>
+          <button onclick="goToStep1()" class="w-full mt-3 bg-white/10 text-white py-2 rounded-xl font-medium hover:bg-white/20 transition-colors">
+            ← Kembali ke Keranjang
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Confirmation & Send to WhatsApp -->
+  <div id="step3" class="step-content hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-lg border border-warm-light p-6 checkout-card">
+          <h2 class="font-serif font-bold text-2xl text-brown-dark mb-4">
+            <i class="fas fa-check-circle text-green-500 mr-2"></i> Konfirmasi Pesanan
+          </h2>
+          
+          <!-- Preview Data -->
+          <div class="space-y-4">
+            <div class="bg-cream rounded-xl p-4">
+              <h3 class="font-semibold text-brown-dark mb-3 flex items-center gap-2">
+                <i class="fas fa-user"></i> Data Pemesan
+              </h3>
+              <div class="space-y-2 text-sm">
+                <p><span class="font-medium text-warm-gray">Nama:</span> <span id="confirm-name" class="text-brown-dark"></span></p>
+                <p><span class="font-medium text-warm-gray">WhatsApp:</span> <span id="confirm-phone" class="text-brown-dark"></span></p>
+                <p><span class="font-medium text-warm-gray">Email:</span> <span id="confirm-email" class="text-brown-dark">-</span></p>
+                <p><span class="font-medium text-warm-gray">Alamat:</span> <span id="confirm-address" class="text-brown-dark"></span></p>
+              </div>
+            </div>
+            
+            <div class="bg-cream rounded-xl p-4">
+              <h3 class="font-semibold text-brown-dark mb-3 flex items-center gap-2">
+                <i class="fas fa-truck"></i> Informasi Pengiriman
+              </h3>
+              <div class="space-y-2 text-sm">
+                <p><span class="font-medium text-warm-gray">Metode:</span> <span id="confirm-delivery" class="text-brown-dark"></span></p>
+                <p><span class="font-medium text-warm-gray">Tanggal:</span> <span id="confirm-date" class="text-brown-dark"></span></p>
+              </div>
+            </div>
+            
+            <div class="bg-cream rounded-xl p-4">
+              <h3 class="font-semibold text-brown-dark mb-3 flex items-center gap-2">
+                <i class="fas fa-shopping-cart"></i> Detail Pesanan
+              </h3>
+              <div id="confirm-items" class="space-y-1 text-sm"></div>
+              <div class="border-t border-warm-light mt-3 pt-3">
+                <div class="flex justify-between font-bold">
+                  <span>Total</span>
+                  <span id="confirm-total" class="text-brown text-lg"></span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-cream rounded-xl p-4">
+              <h3 class="font-semibold text-brown-dark mb-2 flex items-center gap-2">
+                <i class="fas fa-sticky-note"></i> Catatan
+              </h3>
+              <p id="confirm-notes" class="text-sm text-warm-gray">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-1">
+        <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-2xl shadow-xl p-6 text-white sticky top-24">
+          <div class="text-center mb-4">
+            <i class="fab fa-whatsapp text-5xl mb-3"></i>
+            <h3 class="font-serif font-bold text-xl">Kirim ke WhatsApp</h3>
+            <p class="text-sm text-green-100 mt-2">Pesanan akan dikirim ke Owner</p>
+          </div>
+          
+          <div class="bg-white/10 rounded-xl p-3 mb-4 text-center">
+            <p class="text-xs font-mono break-all">📱 +62 857-1711-3401</p>
+            <p class="text-xs mt-1 opacity-80">Ghassan Nichole (Owner)</p>
+          </div>
+          
+          <button onclick="sendToWhatsApp()" class="w-full bg-white text-green-700 py-3.5 rounded-xl font-bold hover:bg-green-50 transition-all shadow-lg flex items-center justify-center gap-2">
+            <i class="fab fa-whatsapp text-xl"></i>
+            Kirim Pesanan via WhatsApp
+          </button>
+          
+          <button onclick="goToStep2()" class="w-full mt-3 bg-white/10 text-white py-2 rounded-xl font-medium hover:bg-white/20 transition-colors">
+            ← Kembali Edit Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="success-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center animate-float">
+    <div class="text-6xl mb-4">🎉</div>
+    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-check text-green-500 text-3xl"></i>
+    </div>
+    <h3 class="font-serif font-bold text-2xl text-brown-dark mb-2">Pesanan Terkirim!</h3>
+    <p class="text-warm-gray mb-4">Pesanan Anda telah dikirim via WhatsApp ke Owner Amoy Bakery</p>
+    <div class="bg-warm-light rounded-lg p-3 mb-4 text-left">
+      <p class="text-sm font-semibold text-brown-dark">Nomor WhatsApp Tujuan:</p>
+      <p class="text-lg font-mono font-bold text-green-600">+62 857-1711-3401</p>
+      <p class="text-xs text-warm-gray mt-1">Owner: Ghassan Nichole akan segera merespon</p>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="closeSuccessModal()" class="flex-1 bg-brown text-cream px-4 py-2 rounded-xl font-semibold hover:bg-brown-dark transition-colors">
+        Kembali ke Beranda
+      </button>
+      <a href="https://wa.me/6285717113401" target="_blank" class="flex-1 bg-green-500 text-white px-4 py-2 rounded-xl font-semibold hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
+        <i class="fab fa-whatsapp"></i> Buka WA
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-brown-dark text-cream px-6 py-3 rounded-full shadow-xl text-sm font-medium opacity-0 transition-opacity duration-300 pointer-events-none">
+  <i class="fas fa-check-circle mr-2"></i>
+  <span>Pesan berhasil dikirim!</span>
+</div>
+
+<script>
+// ======================= KONFIGURASI WHATSAPP OWNER =======================
+// Nomor WhatsApp Owner (dari profil di halaman utama)
+const OWNER_WA_NUMBER = "6285717113401";  // Nomor WhatsApp Ghassan Nichole
+// =======================================================================
+
+// Load cart dari localStorage
+let cart = JSON.parse(localStorage.getItem('amoy_cart') || '[]');
+let currentStep = 1;
+
+// Format Rupiah
+function formatRp(n) { 
+  return 'Rp ' + n.toLocaleString('id-ID'); 
+}
+
+// Update semua tampilan
+function updateAllDisplays() {
+  const totalItems = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || 0)), 0);
+  
+  // Step 1 displays
+  document.getElementById('total-items').textContent = totalItems;
+  document.getElementById('subtotal').textContent = formatRp(subtotal);
+  document.getElementById('total').textContent = formatRp(subtotal);
+  document.getElementById('step2-total').textContent = formatRp(subtotal);
+  
+  // Render cart items
+  const cartContainer = document.getElementById('cart-items');
+  if (cartContainer) {
+    if (cart.length === 0) {
+      cartContainer.innerHTML = `
+        <div class="text-center text-warm-gray py-12">
+          <i class="fas fa-shopping-cart text-5xl mb-3 opacity-50"></i>
+          <p>Keranjang masih kosong</p>
+          <a href="index.html" class="text-brown underline mt-2 inline-block">Kembali berbelanja</a>
+        </div>
+      `;
+    } else {
+      cartContainer.innerHTML = cart.map(item => `
+        <div class="flex items-center gap-3 bg-cream rounded-xl p-3 border border-warm-light">
+          <img src="${item.img}" class="w-16 h-16 rounded-lg object-cover" onerror="this.src='https://placehold.co/64x64?text=Roti'" />
+          <div class="flex-1">
+            <div class="font-semibold text-brown-dark">${escapeHtml(item.name)}</div>
+            <div class="text-sm text-warm-gray">${formatRp(item.price)} x ${item.qty}</div>
+          </div>
+          <div class="font-bold text-brown-dark">${formatRp(item.price * item.qty)}</div>
+        </div>
+      `).join('');
+    }
+  }
+  
+  // Summary for step 2
+  const summaryContainer = document.getElementById('order-summary');
+  if (summaryContainer) {
+    summaryContainer.innerHTML = cart.map(item => `
+      <div class="flex justify-between text-sm">
+        <span>🍞 ${escapeHtml(item.name)} x${item.qty}</span>
+        <span>${formatRp(item.price * item.qty)}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// Escape HTML
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+// Step navigation
+function goToStep1() {
+  if (cart.length === 0) {
+    showToast('Keranjang masih kosong!', 'error');
+    return;
+  }
+  currentStep = 1;
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  updateStepIcons();
+}
+
+function goToStep2() {
+  if (cart.length === 0) {
+    showToast('Keranjang masih kosong!', 'error');
+    return;
+  }
+  currentStep = 2;
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  updateStepIcons();
+}
+
+function goToStep3() {
+  // Validasi form
+  const name = document.getElementById('customer-name')?.value.trim();
+  const phone = document.getElementById('customer-phone')?.value.trim();
+  const address = document.getElementById('customer-address')?.value.trim();
+  
+  if (!name) {
+    showToast('Nama lengkap harus diisi!', 'error');
+    return;
+  }
+  if (!phone) {
+    showToast('Nomor WhatsApp harus diisi!', 'error');
+    return;
+  }
+  if (!address) {
+    showToast('Alamat lengkap harus diisi!', 'error');
+    return;
+  }
+  
+  // Update confirm data
+  document.getElementById('confirm-name').textContent = name;
+  document.getElementById('confirm-phone').textContent = phone;
+  document.getElementById('confirm-email').textContent = document.getElementById('customer-email')?.value || '-';
+  document.getElementById('confirm-address').textContent = address;
+  document.getElementById('confirm-delivery').textContent = document.getElementById('delivery-method')?.value;
+  
+  const deliveryDate = document.getElementById('delivery-date')?.value;
+  if (deliveryDate) {
+    const date = new Date(deliveryDate);
+    document.getElementById('confirm-date').textContent = date.toLocaleDateString('id-ID');
+  } else {
+    document.getElementById('confirm-date').textContent = 'Sesuai jadwal admin';
+  }
+  
+  // Items confirmation
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  document.getElementById('confirm-total').textContent = formatRp(subtotal);
+  document.getElementById('confirm-notes').textContent = document.getElementById('order-notes')?.value || '-';
+  
+  const confirmItems = document.getElementById('confirm-items');
+  confirmItems.innerHTML = cart.map(item => `
+    <div class="flex justify-between text-sm">
+      <span>${escapeHtml(item.name)} x${item.qty}</span>
+      <span>${formatRp(item.price * item.qty)}</span>
+    </div>
+  `).join('');
+  
+  currentStep = 3;
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.remove('hidden');
+  updateStepIcons();
+}
+
+function updateStepIcons() {
+  for (let i = 1; i <= 3; i++) {
+    const icon = document.getElementById(`step${i}-icon`);
+    if (i < currentStep) {
+      icon.className = 'step w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold border-2 border-green-500';
+      icon.textContent = '✓';
+    } else if (i === currentStep) {
+      icon.className = 'step w-10 h-10 rounded-full bg-brown text-white flex items-center justify-center font-bold border-2 border-brown';
+      icon.textContent = i;
+    } else {
+      icon.className = 'step w-10 h-10 rounded-full bg-white text-warm-gray flex items-center justify-center font-bold border-2 border-warm-light';
+      icon.textContent = i;
+    }
+  }
+}
+
+// Fungsi utama: Kirim ke WhatsApp Owner
+function sendToWhatsApp() {
+  if (cart.length === 0) {
+    showToast('Keranjang kosong!', 'error');
+    return;
+  }
+  
+  // Ambil data dari form
+  const customerName = document.getElementById('customer-name')?.value.trim();
+  const customerPhone = document.getElementById('customer-phone')?.value.trim();
+  const customerEmail = document.getElementById('customer-email')?.value.trim() || '-';
+  const customerAddress = document.getElementById('customer-address')?.value.trim();
+  const deliveryMethod = document.getElementById('delivery-method')?.value;
+  const deliveryDate = document.getElementById('delivery-date')?.value;
+  const notes = document.getElementById('order-notes')?.value.trim() || 'Tidak ada catatan';
+  
+  // Format tanggal
+  let formattedDate = '-';
+  if (deliveryDate) {
+    const date = new Date(deliveryDate);
+    formattedDate = date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  
+  // Susun daftar barang
+  let itemsList = '';
+  let totalBelanja = 0;
+  cart.forEach((item, idx) => {
+    const subTotal = item.price * item.qty;
+    totalBelanja += subTotal;
+    itemsList += `└ ${idx+1}. ${item.name}\n     ${item.qty} x ${formatRp(item.price)} = ${formatRp(subTotal)}\n`;
+  });
+  
+  // Format pesan untuk WhatsApp
+  const message = `*🍞 AMOY ARTISAN BAKERY - PESANAN BARU 🍞*
+  
+╔══════════════════════════╗
+║     📋 DATA PEMESAN       ║
+╚══════════════════════════╝
+👤 *Nama:* ${customerName}
+📱 *WhatsApp:* ${customerPhone}
+📧 *Email:* ${customerEmail}
+📍 *Alamat:* ${customerAddress}
+  
+╔══════════════════════════╗
+║     🚚 PENGIRIMAN         ║
+╚══════════════════════════╝
+📦 *Metode:* ${deliveryMethod}
+📅 *Tanggal:* ${formattedDate}
+📝 *Catatan:* ${notes}
+  
+╔══════════════════════════╗
+║     🛒 DETAIL PESANAN      ║
+╚══════════════════════════╝
+${itemsList}
+  
+╔══════════════════════════╗
+║     💰 TOTAL PESANAN      ║
+╚══════════════════════════╝
+✨ *Total Akhir:* ${formatRp(totalBelanja)} ✨
+  
+────────────────────────────
+🕐 *Dibuat pada:* ${new Date().toLocaleString('id-ID')}
+  
+*Terima kasih! 🙏*
+_Mohon konfirmasi ke pelanggan_`;
+  
+  // Encode pesan untuk URL
+  const encodedMessage = encodeURIComponent(message);
+  const waUrl = `https://wa.me/${OWNER_WA_NUMBER}?text=${encodedMessage}`;
+  
+  // Simpan ke history
+  const orderHistory = JSON.parse(localStorage.getItem('amoy_orders_history') || '[]');
+  orderHistory.push({
+    orderId: 'AMY' + Date.now(),
+    date: new Date().toISOString(),
+    customer: { name: customerName, phone: customerPhone, email: customerEmail, address: customerAddress },
+    items: cart,
+    total: totalBelanja,
+    notes: notes,
+    deliveryMethod: deliveryMethod
+  });
+  localStorage.setItem('amoy_orders_history', JSON.stringify(orderHistory));
+  
+  // Buka WhatsApp
+  window.open(waUrl, '_blank');
+  
+  // Tampilkan modal sukses
+  document.getElementById('success-modal').classList.remove('hidden');
+  document.getElementById('success-modal').classList.add('flex');
+  
+  // Kosongkan keranjang
+  localStorage.removeItem('amoy_cart');
+  cart = [];
+  updateAllDisplays();
+  
+  showToast('Pesanan berhasil dikirim ke WhatsApp Owner!');
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  const span = toast.querySelector('span');
+  const icon = toast.querySelector('i');
+  
+  if (type === 'error') {
+    icon.className = 'fas fa-exclamation-circle mr-2';
+    span.textContent = message;
+  } else {
+    icon.className = 'fas fa-check-circle mr-2';
+    span.textContent = message;
+  }
+  
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+}
+
+function closeSuccessModal() {
+  document.getElementById('success-modal').classList.add('hidden');
+  document.getElementById('success-modal').classList.remove('flex');
+  window.location.href = 'index.html';
+}
+
+// Set default delivery date (tomorrow)
+function setDefaultDate() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const dateInput = document.getElementById('delivery-date');
+  if (dateInput) {
+    dateInput.value = tomorrow.toISOString().split('T')[0];
+  }
+}
+
+// Cek keranjang kosong saat load
+window.addEventListener('load', () => {
+  updateAllDisplays();
+  setDefaultDate();
+  
+  if (cart.length === 0) {
+    const cartContainer = document.getElementById('cart-items');
+    if (cartContainer) {
+      cartContainer.innerHTML = `
+        <div class="text-center text-warm-gray py-12">
+          <i class="fas fa-shopping-cart text-5xl mb-3 opacity-50"></i>
+          <p>Keranjang masih kosong</p>
+          <a href="index.html" class="text-brown underline mt-2 inline-block">Kembali berbelanja</a>
+        </div>
+      `;
+    }
+  }
+});
+</script>
+</body>
+</html>
